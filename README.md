@@ -16,7 +16,7 @@ Link Data: https://palm.seu.edu.cn/zhangml/
 
 To run experiments on mixed data sets with missing value at prediction time, you can call
 options:
-
+```text
   -dataset                        Dataset - 'Adult','Default','Thyroid'
   --baselearner                   Base classifier {lr,nb,rf}
   --palim PALIM                   The maximum number of parents for each node
@@ -25,7 +25,7 @@ options:
   --plot, --no-plot               Whether or not to plot the BN structure
   --n-folds N_FOLDS               Number of folds
   --output OUTPUT                 Output path
-
+```
 
 ```shell
 - Navigate to code folder
@@ -59,7 +59,7 @@ python HDMC_prediction_BA.py -dataset Adult --palim 2 --baselearner lr --n-folds
 
 ```shell
 - Visualize Score
-usage: main.py [-dataset {Adult,'Default','Thyroid'}] [--base {lr,nb,rf}] [--palim PALIM] [--n-folds N_FOLDS] [--output OUTPUT] [--class-missing CLASS_MISS] [--dis-missing DIS_MISS]
+usage: main.py [-dataset {'Adult','Default','Thyroid'}] [--base {lr,nb,rf}] [--palim PALIM] [--n-folds N_FOLDS] [--output OUTPUT] [--class-missing CLASS_MISS] [--dis-missing DIS_MISS]
 
 ## Folder Structure
 project-name/
