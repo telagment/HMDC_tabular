@@ -25,7 +25,7 @@ options:
   --plot, --no-plot               Whether or not to plot the BN structure
   --n-folds N_FOLDS               Number of folds
   --output OUTPUT                 Output path
-```
+
 
 ```shell
 - Navigate to code folder
