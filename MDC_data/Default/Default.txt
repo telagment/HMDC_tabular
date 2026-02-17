@@ -1,0 +1,95 @@
+Tables of Contents
+==================
+- Descriptions
+- Original Sources
+- References
+- Data Format (Matlab)
+- Preprocessing Notes
+
+
+Descriptions
+============
+Default is a preprocessed version of default of credit card clients Data Set in UCI machine learning repository according to MDC framework. Default deals with the task of categorizing credit card clients from different dimensions based on their personal information, where the four class spaces correspond to Gender, Education, Marital status, and default payment next month, respectively.
+
+More descriptions of Default can be found in UCI website (default of credit card clients Data Set: https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients)
+
+
+Original Sources
+================
+1. data: https://archive.ics.uci.edu/ml/machine-learning-databases/00350/default%20of%20credit%20card%20clients.xls
+
+
+References
+==========
+1. Citation Request in UCI webpage (https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients):
+[Yeh and Lien, 2009] Yeh, I. C., & Lien, C. H. (2009). The comparisons of data mining techniques for the predictive accuracy of probability of default of credit card clients. Expert Systems with Applications, 36(2), 2473-2480.
+
+2. The processed Default data set is firstly used as an MDC benchmark in the following SCIS'20 paper: 
+[Jia and Zhang, 2020] B.-B. Jia, M.-L. Zhang. Multi-dimensional classification via stacked dependency exploitation. Science China Information Sciences, 2020, 63(12): Article 222102.
+
+
+Data Format (Matlab)
+====================
+"data": A struct w.r.t. the input attribute representations, where
+		-data.orig is an mxd matrix and stores the original input attribute representations, where m is the number of instances and d is the number of features. Here, data.orig(i,:) stores the feature vector of the ith instance. If your learning algorithm is sensitive to the type of input attributes like decision tree, naive Bayes classifier, etc., then you should use data.orig;
+		-data.norm is an mxd' matrix and stores the preprocessed version of data.orig where discrete-valued attributes are transformed into their one-hot form and continuous-valued attributes are normalized into [0,1]. If your learning algorithm can only accept continuous-valued input attributes like support vector machine, logistic regression, etc., then you should use data.norm;
+		NOTE: If all input attributes are continuous-valued, then data.orig is empty and data.norm is a [0,1]-normalized matrix. 
+"data_type": A struct w.r.t. the type of input attributes where
+		-data_type.d_wo_o stores the indexes of all input attributes whose type is discrete-valued without ordinal relationship (a.k.a. categorical/nominal);
+		-data_type.d_w_o stores the indexes of all input attributes whose type is discrete-valued with ordinal relationship;
+		-data_type.b stores the indexes of all input attributes whose type is binary-valued;
+		-data_type.c stores the indexes of all input attributes whose type is continuous-valued (a.k.a. numeric).
+		NOTE: The corresponding field is empty when no such type of input attributes exist.
+"target": An mxq matrix w.r.t. the labeling information, where q is the number of dimensions. Here, target(i,:) stores the class vector associated with the ith instance.
+"data_name": A string which stores the name of this data set.
+"idx_folds": A 10x1 cell w.r.t. the data partition in ten-fold cross validation, where
+		-idx_folds{i}.train stores the indexes of training examples in the i-th cross validation,
+		-idx_folds{i}.test stores the indexes of testing examples in the i-th cross validation.
+		NOTE: These ten-fold cross validation partitions are only given for reference purpose. Please feel free to use your own partitions for experimental evaluation.
+
+
+Preprocessing Notes
+===================
+1. There are a total of 20 input attributes (Attribute Name: Possible Values):
+	LIMIT_BAL:	continuous
+	AGE:		continuous
+	PAY_0:		-1 = pay duly; 1-8 = payment delay for one to eight months; 9 = payment delay for nine months and above.
+	PAY_2:		-1 = pay duly; 1-8 = payment delay for one to eight months; 9 = payment delay for nine months and above.
+	PAY_3:		-1 = pay duly; 1-8 = payment delay for one to eight months; 9 = payment delay for nine months and above.
+	PAY_4:		-1 = pay duly; 1-8 = payment delay for one to eight months; 9 = payment delay for nine months and above.
+	PAY_5:		-1 = pay duly; 1-8 = payment delay for one to eight months; 9 = payment delay for nine months and above.
+	PAY_6:		-1 = pay duly; 1-8 = payment delay for one to eight months; 9 = payment delay for nine months and above.
+	BILL_AMT1:	continuous
+	BILL_AMT2:	continuous
+	BILL_AMT3:	continuous
+	BILL_AMT4:	continuous
+	BILL_AMT5:	continuous
+	BILL_AMT6:	continuous
+	PAY_AMT1:	continuous
+	PAY_AMT2:	continuous
+	PAY_AMT3:	continuous
+	PAY_AMT4:	continuous
+	PAY_AMT5:	continuous
+	PAY_AMT6:	continuous
+	
+NOTE1: The PAY_0, PAY_2, PAY_3, PAY_4, PAY_5, PAY_6 are used as discrete-valued attributes without ordinal relationship.
+NOTE2: In fact, for PAY_0, PAY_2, PAY_3, PAY_4, PAY_5, PAY_6, possible attribute values include -2/-1/0/1/2/3/4/5/6/7/8 (both PAY_5 and PAY_6 do not have attribute value '1'). To reduce the dimension of their one-hot form, attribute values which are taken by less than 1000 examples are removed (The corresponding examples are also removed). At last, the attribute values w.r.t. these six attributes are as follows:
+	PAY_0: -2/-1/0/1/2/
+	PAY_2: -2/-1/0/2/
+	PAY_3: -2/-1/0/2/
+	PAY_4: -2/-1/0/2/
+	PAY_5: -2/-1/0/2/ 
+	PAY_6: -2/-1/0/2/
+Besides, there is no way to know exactly what attribute value '-2' means.
+	
+2. There are a total of 4 output class spaces (Attribute Name: Possible Values): 
+	Gender (1 = male; 2 = female).
+	Education (1 = graduate school; 2 = university; 3 = high school; 4 = others).
+	Marital status (1 = married; 2 = single; 3 = others).
+	Default payment next month (0 = no; 1 = yes).
+	
+NOTE1: In fact, for Education, possible attribute values include 0/1/2/3/4/5/6/, and for Marital status, possible attribute values include 0/1/2/3/. There is no way to know exactly what they mean.
+
+3. For Education dimension, the class labels {0, 1, 2, 3, 4, 5, 6} are mapped into {1, 2, 3, 4, 5, 6, 7};
+   For Marital status dimension, the class labels {0, 1, 2, 3} are mapped into {1, 2, 3, 4};
+   For Default payment next month dimension, the class labels {0, 1} are mapped into {1, 2}.
