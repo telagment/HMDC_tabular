@@ -1,7 +1,7 @@
 # Hybrid Multi-Dimensional Classification
 Hybrid Multi-Dimensional Classification with mixed data for making inference in the presence of unobserved discrete features and unobserved class variable values at prediction time.
 
-This project includes/adapts portions of code from https://github.com/yangyang-pro/probabilistic-mdc). We sincerely thank the authors for their contribution.
+This project includes/adapts portions of code from https://github.com/yangyang-pro/probabilistic-mdc. We sincerely thank the authors for their contribution.
 
 ## Requirements
 
