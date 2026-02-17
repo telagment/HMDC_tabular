@@ -1,0 +1,135 @@
+Tables of Contents
+==================
+- Descriptions
+- Original Sources
+- References
+- Data Format (Matlab)
+- Preprocessing Notes
+
+
+Descriptions
+============
+Thyroid is one of the Thyroid Disease Data Set in UCI machine learning repository. Thyroid deals with the task of estimating types of thyroid problems based on patient information, where the seven class spaces correspond to diagnosis of seven different conditions, respectively.
+
+More descriptions of Thyroid can be found in UCI website (Thyroid Disease: http://archive.ics.uci.edu/ml/datasets/Thyroid+Disease).
+
+
+Original Sources
+================
+1. data: http://archive.ics.uci.edu/ml/machine-learning-databases/thyroid-disease/thyroid0387.data
+2. descriptions: http://archive.ics.uci.edu/ml/machine-learning-databases/thyroid-disease/thyroid0387.names
+
+
+References
+==========
+Please obey the citation policy of UCI machine learning repository (http://archive.ics.uci.edu/ml/citation_policy.html).
+
+
+Data Format (Matlab)
+====================
+"data": A struct w.r.t. the input attribute representations, where
+		-data.orig is an mxd matrix and stores the original input attribute representations, where m is the number of instances and d is the number of features. Here, data.orig(i,:) stores the feature vector of the ith instance. If your learning algorithm is sensitive to the type of input attributes like decision tree, naive Bayes classifier, etc., then you should use data.orig;
+		-data.norm is an mxd' matrix and stores the preprocessed version of data.orig where discrete-valued attributes are transformed into their one-hot form and continuous-valued attributes are normalized into [0,1]. If your learning algorithm can only accept continuous-valued input attributes like support vector machine, logistic regression, etc., then you should use data.norm;
+		-data.unkn (a special field only for Thyroid) is an mxd matrix and stores the indicator of unknown attribute values: 1--unknown, 0--known
+		NOTE: If all input attributes are continuous-valued, then data.orig is empty and data.norm is a [0,1]-normalized matrix. 
+"data_type": A struct w.r.t. the type of input attributes where
+		-data_type.d_wo_o stores the indexes of all input attributes whose type is discrete-valued without ordinal relationship (a.k.a. categorical/nominal);
+		-data_type.d_w_o stores the indexes of all input attributes whose type is discrete-valued with ordinal relationship;
+		-data_type.b stores the indexes of all input attributes whose type is binary-valued;
+		-data_type.c stores the indexes of all input attributes whose type is continuous-valued (a.k.a. numeric).
+		NOTE: The corresponding field is empty when no such type of input attributes exist.
+"target": An mxq matrix w.r.t. the labeling information, where q is the number of dimensions. Here, target(i,:) stores the class vector associated with the ith instance.
+"data_name": A string which stores the name of this data set.
+"idx_folds": A 10x1 cell w.r.t. the data partition in ten-fold cross validation, where
+		-idx_folds{i}.train stores the indexes of training examples in the i-th cross validation,
+		-idx_folds{i}.test stores the indexes of testing examples in the i-th cross validation.
+		NOTE: These ten-fold cross validation partitions are only given for reference purpose. Please feel free to use your own partitions for experimental evaluation.
+
+
+Preprocessing Notes
+===================
+Thyroid  consists of 9172 records from 1984 to early 1987.  Each record looks like
+	(29 attribute values), diagnoses [record identification]
+The attributes are given in order and separated by commas. The diagnosis consists of a string of letters indicating diagnosed conditions. A diagnosis "-" indicates no condition requiring comment. A diagnosis of the form "X|Y" is interpreted as "consistent with X, but more likely Y". 
+
+1. There are a total of 29 input attributes (Attribute Name: Possible Values): 
+	age:						continuous
+	sex:						M, F.
+	on thyroxine:				f, t.
+	query on thyroxine:			f, t.
+	on antithyroid medication:	f, t.
+	sick:						f, t.
+	pregnant:					f, t.
+	thyroid surgery:			f, t.
+	I131 treatment:				f, t.
+	query hypothyroid:			f, t.
+	query hyperthyroid:			f, t.
+	lithium:					f, t.
+	goitre:						f, t.
+	tumor:						f, t.
+	hypopituitary:				f, t.
+	psych:						f, t.
+	TSH measured:				f, t.
+	TSH:						continuous.
+	T3 measured:				f, t.
+	T3:							continuous.
+	TT4 measured:				f, t.
+	TT4:						continuous.
+	T4U measured:				f, t.
+	T4U:						continuous.
+	FTI measured:				f, t.
+	FTI:						continuous.
+	TBG measured:				f, t.
+	TBG:						continuous.
+	referral source:			WEST, STMW, SVHC, SVI, SVHD, other.
+
+NOTE1: For unknown attribute values in continuous-valued attributes (TSH/T3/TT4/T4U/FTI/TBG), we fill them in with the mean values of known attribute values in the corresponding attribute.
+NOTE2: For unknown attribute values in discrete-valued attributes (sex), we fill them in with the attribute value which includes the most examples in the corresponding attribute.
+NOTE3: To make it easier to store, for sex, Male-->0, Female-->1, for other binary attributes, f-->0,t-->1, and for referral source, WEST-->1, STMW-->2, SVHC-->3, SVI-->4, SVHD-->5, other-->6.
+NOTE4: For the 2977(ID=[850530001])/5711(ID=[860210008])/6393(ID=[860403050])/8106(ID=[861014041])-th example, the attribute values of age are abnormal, because one cannot be 455/65511/65512/65526 years old. We have modified them to be 45/65/65/65, respectively.
+
+2. There are a total of 7 output class spaces (Letter: Diagnosis): 
+	Dim.1: hyperthyroid conditions
+		A: hyperthyroid
+		B: T3 toxic
+		C: toxic goitre
+		D: secondary toxic
+
+	Dim.2: hypothyroid conditions:
+		E: hypothyroid
+		F: primary hypothyroid
+		G: compensated hypothyroid
+		H: secondary hypothyroid
+
+	Dim.3: binding protein:
+		I: increased binding protein
+		J: decreased binding protein
+
+	Dim.4: general health:
+		K: concurrent non-thyroidal illness
+
+	Dim.5: replacement therapy:
+		L: consistent with replacement therapy
+		M: underreplaced
+		N: overreplaced
+
+	Dim.6: antithyroid treatment:
+		O: antithyroid drugs
+		P: I131 treatment
+		Q: surgery
+
+	Dim.7: miscellaneous:
+		R: discordant assay results
+		S: elevated TBG
+		T: elevated thyroid hormones
+
+NOTE1: To make it easier to store, 
+	for dim.1, A-->2, B-->3, C-->4, D-->5, 
+	for dim.2, E-->2, F-->3, G-->4, H-->5, 
+	for dim.3, I-->2, J-->3,
+	for dim.4, K-->2,
+	for dim.5, L-->2, M-->3, N-->4
+	for dim.6, O-->2, P-->3, Q-->4
+	for dim.7, R-->2, S-->3, T-->4 (In fact, no examples take the value 'T'.)
+	Besides, if none of letters w.r.t. one dimension appear in diagnoses [record identification], then the class label in this dimension is set as 1.
+NOTE2: A diagnosis of the form "X|Y" is simply regarded as XY. In fact, there are only 21 such kind diagnoses.
