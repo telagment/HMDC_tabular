@@ -37,12 +37,13 @@ DATASETS_DIR = 'MDC_data'
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='Training HMDC models on tabular datasets')
-    parser.add_argument('-dataset', choices=DATASETS, default='Thyroid', type=str, help='Dataset')
+    parser.add_argument('-dataset', choices=DATASETS, default='Adult', type=str, help='Dataset')
     parser.add_argument('--baselearner', choices=BASELEARNERS, default='lr', type=str, help='Base Learner')
     parser.add_argument('--palim', type=int, default=0, help='The maximum number of parents for each node')
     parser.add_argument('--plot', action=argparse.BooleanOptionalAction, help='Whether or not to plot the BN structure')
     parser.add_argument('--is-missing', action=argparse.BooleanOptionalAction, default=True, help='Whether or not missing data appear in inference')
     parser.add_argument('--n-folds', type=int, default=10, help='Number of folds')
+    parser.add_argument('--grouping', action=argparse.BooleanOptionalAction, default=False, help='Whether or not to group discrete features')
     parser.add_argument('--output', type=str, default='experiments_tabular/HMDC_training', help='Output path')
     args = parser.parse_args()
 
@@ -53,6 +54,7 @@ if __name__ == '__main__':
     is_plot = args.plot
     n_folds = args.n_folds
     output_path = args.output
+    grouping = args.grouping
     base_dir = os.path.join(output_path, base)
     os.makedirs(base_dir, exist_ok=True)
     dataset_dir = os.path.join(base_dir, dataset)
@@ -108,10 +110,12 @@ if __name__ == '__main__':
         data_loader.discrete_feature_names = indexed_disc_names
         with open(os.path.join(model_dir, "data_loader.pkl"), 'wb') as f:
                     pickle.dump(data_loader, f)
-
+    if dataset == 'Adult' and grouping == True: 
+        data_loader.update(data_loader, node_id=3) 
 
     saving_dir = os.path.join(model_dir,'data')
     os.makedirs(saving_dir, exist_ok=True)
+
     for i, (train_indices, test_indices) in enumerate(kf.split(data_loader.labels)):
         saving_fold = os.path.join(saving_dir, str(i))
         os.makedirs(saving_fold, exist_ok=True)
@@ -123,10 +127,10 @@ if __name__ == '__main__':
             
         # GBNC
         time_time = time.time()
-        gbnc = TabularClassifier_HMDC(palim=palim, base=base, result_path=saving_fold)
-        gbnc.fit(train_data_loader, save_baselearner=True)
+        hmdc = TabularClassifier_HMDC(palim=palim, base=base, result_path=saving_fold)
+        hmdc.fit(train_data_loader, save_baselearner=True)
 
-        gbnc.learn_structure()
+        hmdc.learn_structure()
         logging.info(f"Time to fit and learn structure: {time.time() - time_time}") 
         time_time = time.time()
 
