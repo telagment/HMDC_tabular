@@ -172,7 +172,7 @@ class TabularClassifier_HMDC:
 
         return bn
         
-    def fit(self, train_data_loader: TabularDataLoader_HMDC, show_log=False, save_baselearner=False):
+    def fit(self, train_data_loader: TabularDataLoader_HMDC, pruning_score: str = 'BIC', show_log=False, save_baselearner=False):
         self.__init_structures(train_data_loader.label_domains)
         all_nodes = list(self.label_domains.keys())
         candidate_child_nodes = list(self.label_domains.keys())
@@ -187,8 +187,13 @@ class TabularClassifier_HMDC:
                     parent_set = frozenset(parents)
                     parent_domains = [self.label_domains[parent_id] for parent_id in parents]
                     configurations = list(itertools.product(*parent_domains))
-                    penalty = -0.5 * np.log(len(train_data_loader.continuous_features)) \
-                              * len(configurations) * (len(self.label_domains[node]) - 1)
+                    # penalty = -0.5 * np.log(len(train_data_loader.continuous_features)) \
+                    #           * len(configurations) * (len(self.label_domains[node]) - 1)
+                    if pruning_score == 'AIC':
+                        penalty = -len(configurations) * (len(self.label_domains[node]) - 1) 
+                    else:  # pruning_score == 'BIC'
+                        penalty = -0.5 * np.log(len(train_data_loader.continuous_features)) \
+                                  * len(configurations) * (len(self.label_domains[node]) - 1) 
                     if show_log:
                         logging.info('{:<10}{:<5}'
                               '{:<10}{:<30}'
@@ -282,15 +287,22 @@ class TabularClassifier_HMDC:
         if save_baselearner == True:
             filepath = os.path.join(self.result_path, 'classifiers.pkl')
             joblib.dump(self.classifiers, filepath)
+            scorepath = os.path.join(self.result_path, 'scores.npy')
+            np.save(scorepath, self.scores)
 
-    def learn_structure(self):
+    def learn_structure(self, pruning_score='BIC'):
         m = Gobnilp()
         if not (self.result_path is None):
             output_path = os.path.join(self.result_path, 'score')
         else:
             output_path = None
 
-        m.learn(local_scores_source=self.scores, palim=self.palim, output_scores=output_path)
+        if pruning_score == 'AIC':
+            str_score = 'DiscreteAIC'
+        else:            
+            str_score = 'DiscreteBIC'
+
+        m.learn(local_scores_source=self.scores, score=str_score, palim=self.palim, output_scores=output_path)
         self.bn = m.learned_bn
         parent_dict = {node: [] for node in list(self.label_domains.keys())}
 
