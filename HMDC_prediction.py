@@ -56,49 +56,36 @@ if __name__ == '__main__':
     parser.add_argument('--palim', type=int, default=2, help='The maximum number of parents for each node')
     # parser.add_argument('--dis-missing', type=float, default=0.5, help='The percentage of missing discrete features ')
     # parser.add_argument('--class-missing', type=float, default=0.5, help='The percentage of missing class variables')
-    parser.add_argument('--n-chains', default=10, type=int, help='Number of randomly generated classifier chains')
-    parser.add_argument('--plot', action=argparse.BooleanOptionalAction, help='Whether or not to plot the BN structure')
     parser.add_argument('--is-missing', action=argparse.BooleanOptionalAction, default=True, help='Whether or not missing data appear in inference')
-    parser.add_argument('--n-folds', type=int, default=10, help='Number of folds')
-    parser.add_argument('--output', type=str, default='experiments_tabular/HMDC_prediction', help='Output path')
+    parser.add_argument('--n-folds', type=int, default=5, help='Number of folds')
+    parser.add_argument('--load_dir', type=str, default='experiments_tabular/HMDC_inference/lr/Adult', help='Directory to load the inference results')
+    parser.add_argument('--output', type=str, default='experiments_tabular/HMDC_prediction/score', help='Output path')
     args = parser.parse_args()
 
     dataset = args.dataset
     base = args.baselearner
     palim = args.palim
-    disclim = args.disclim
-    is_plot = args.plot
-    n_chains = args.n_chains
     n_folds = args.n_folds
     output_path = args.output
     is_missing = args.is_missing
+    load_dir = args.load_dir
 
-    dis_missing_list = [0.3, 0.8]
-    class_missing_list = [0.3, 0.7, 0.8, 0.9]
+    dis_missing_list = [0.3, 0.8, 1.0]
+    class_missing_list = [0.3, 0.7, 0.8, 0.9, 1.0]
 
-    base_dir = os.path.join(output_path, base)
-    os.makedirs(base_dir, exist_ok=True)
-    dataset_dir = os.path.join(base_dir, dataset)
+    dataset_dir = os.path.join(output_path, base, dataset)
     os.makedirs(dataset_dir, exist_ok=True)
-
-    load_dir = 'experiments_tabular/HMDC_inference/' + str(base) + '/' + str(dataset)
-
+    
     for dis_missing in dis_missing_list:
         for class_missing in class_missing_list:
-            h_hls_opt, h_zos_opt, s_hls_opt, s_zos_opt = [], [], [], []
-            h_hls_ave, h_zos_ave, s_hls_ave, s_zos_ave = [], [], [], []
-            h_hls_ref, h_zos_ref, s_hls_ref, s_zos_ref = [], [], [], []
-            imp_h_hls, imp_s_hls, imp_h_zos, imp_s_zos = [], [], [], []
-            imp_h_hls_02, imp_s_hls_02, imp_h_zos_02, imp_s_zos_02 = [], [], [], []
+            h_hls_opt, s_zos_opt = [], []
+            h_hls_ave, s_zos_ave = [], []
+            h_hls_ref, s_zos_ref = [], []
+            imp_h_hls, imp_s_zos = [], []
             ran_zeros, ran_hams = [], []
             imp_zeros, imp_hams = [], []
             br_hls, br_zos = [], []
-            ran_deltas, imp_deltas, br_deltas = [], [], []
-            opt_deltas, ave_deltas, ref_deltas = [], [], []
-            imp_hmdc_deltas_h, imp_hmdc_deltas_s = [], []
-            opt_deltas_h, opt_deltas_s = [], []
-            ave_deltas_h, ave_deltas_s = [], []
-            ref_deltas_h, ref_deltas_s = [], []
+
             train_splits = []
             test_splits = []
             print(f"Processing dis_missing: {dis_missing}, class_missing: {class_missing}")
@@ -110,9 +97,9 @@ if __name__ == '__main__':
             log_file = os.path.join(model_dir, 'log_file.log')
             logging.basicConfig(level=logging.INFO, filename=log_file, filemode="w")
 
-            logging.info(f'python mixed_data_missing_inference_HMDC_Imb_Inference_loop.py -dataset {dataset} --baselearner {base} \
-                    --palim {palim} --disclim {disclim} --dis-missing {dis_missing} --class-missing {class_missing} \
-                    --n-chains {n_chains} --n-folds {n_folds} --output {output_path} --is-missing {is_missing}')
+            logging.info(f'python HMDC_prediction.py -dataset {dataset} --baselearner {base} \
+                    --palim {palim} --dis-missing {dis_missing} --class-missing {class_missing} \
+                    --n-folds {n_folds} --output {output_path} --is-missing {is_missing}')
         
             test_dir = os.path.join(load_case_dir, 'test_data')
 
@@ -127,7 +114,7 @@ if __name__ == '__main__':
 
                 # Create missing indicator: 1 if missing (-1), 0 otherwise
                 missing_indicator = (test_data_loader.labels == -1).astype(int)
-
+                
                 y_pred_ran = data['y_pred_ran']
                 y_pred_imp = data['y_pred_imp']
                 br_pred = data['br_pred']
@@ -140,7 +127,7 @@ if __name__ == '__main__':
                 hmdc_s_pred_ref = data['hmdc_s_pred_ref']
                 hmdc_h_pred_ref = data['hmdc_h_pred_ref']
 
-                y_true = test_data_loader.all_labels
+                # y_true = test_data_loader.all_labels
                 
                 (   y_true,
                     y_pred_ran,
@@ -246,6 +233,8 @@ if __name__ == '__main__':
             # Split into separate DataFrames
             df_hamming = df[df["Metric"] == "Hamming"]
             df_subset = df[df["Metric"] == "0/1 Score"]
+
+            df.to_csv(os.path.join(model_dir, "results.csv"), index=False)
 
             # Save to separate CSV files
             hamming_csv = os.path.join(model_dir, "results_hamming.csv")
