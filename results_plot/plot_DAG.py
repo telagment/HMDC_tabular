@@ -84,7 +84,7 @@ def read_local_scores(f,verbose=False):
         print('Scores read in', file=sys.stderr)
     return family_scores
 
-def save_dag_from_scores(score_path, output_path, palim=2, image_format='png', prog='dot'):
+def save_dag_from_scores(score_path, output_path, pruning_score='BIC', palim=2, image_format='png', prog='dot'):
     """
     Learn a Bayesian Network from a local score file and save the DAG as an image.
 
@@ -97,8 +97,12 @@ def save_dag_from_scores(score_path, output_path, palim=2, image_format='png', p
     """
     # Read scores and learn structure
     local_scores = read_local_scores(score_path)
+    if pruning_score == 'AIC':
+        str_score = 'DiscreteAIC'
+    else:            
+        str_score = 'DiscreteBIC'
     m = Gobnilp()
-    m.learn(local_scores_source=local_scores, palim=palim)
+    m.learn(local_scores_source=local_scores, score=str_score, palim=palim)
     bn = m.learned_bn
 
     # Convert to AGraph and save
@@ -113,8 +117,8 @@ if __name__ == '__main__':
     parser.add_argument('--palim', type=int, default=2, help='The maximum number of parents for each node')
     # parser.add_argument('--dis-missing', type=float, default=0.5, help='The percentage of missing discrete features ')
     # parser.add_argument('--class-missing', type=float, default=0.5, help='The percentage of missing class variables')
+    parser.add_argument('--pruning-score', type=str, choices=['BIC', 'AIC'], default='BIC', help='Pruning score for learning')
     parser.add_argument('--plot', action=argparse.BooleanOptionalAction, help='Whether or not to plot the BN structure')
-    parser.add_argument('--is-missing', action=argparse.BooleanOptionalAction, default=True, help='Whether or not missing data appear in inference')
     parser.add_argument('--n-folds', type=int, default=10, help='Number of folds')
     parser.add_argument('--output', type=str, default='experiments_tabular/HMDC_prediction_Images', help='Output path')
     args = parser.parse_args()
@@ -125,8 +129,8 @@ if __name__ == '__main__':
     is_plot = args.plot
     n_folds = args.n_folds
     output_path = args.output
-    is_missing = args.is_missing
-
+    pruning_score = args.pruning_score
+    
     dis_missing_list = [0.3, 0.8]
     class_missing_list = [0.3, 0.7, 0.8, 0.9]
 
